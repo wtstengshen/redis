@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "slowlog.h": "c",
+        "bio.h": "c",
+        "socket.h": "c"
+    }
+}
