@@ -99,7 +99,7 @@ typedef struct aeEventLoop {
     int setsize; /* max number of file descriptors tracked */
     long long timeEventNextId;
     time_t lastTime;     /* Used to detect system clock skew */
-    aeFileEvent *events; /* Registered events */
+    aeFileEvent *events; /* Registered events */ /* events index is fd */
     aeFiredEvent *fired; /* Fired events */
     aeTimeEvent *timeEventHead;
     int stop;
