@@ -38,6 +38,9 @@
 #define AE_OK 0
 #define AE_ERR -1
 
+/*
+* 这里的AE 是具体的网络socket，读写事件，对应aeFileEvent中的mask
+*/
 #define AE_NONE 0       /* No events registered. */
 #define AE_READABLE 1   /* Fire when descriptor is readable. */
 #define AE_WRITABLE 2   /* Fire when descriptor is writable. */
@@ -46,7 +49,9 @@
                            loop iteration. Useful when you want to persist
                            things to disk before sending replies, and want
                            to do that in a group fashion. */
-
+/*
+* 这里的AE 是事件循环的事件，控制事件循环处理逻辑
+*/
 #define AE_FILE_EVENTS 1
 #define AE_TIME_EVENTS 2
 #define AE_ALL_EVENTS (AE_FILE_EVENTS|AE_TIME_EVENTS)

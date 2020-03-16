@@ -431,6 +431,8 @@ int aeProcessEvents(aeEventLoop *eventLoop, int flags)
              * This is useful when, for instance, we want to do things
              * in the beforeSleep() hook, like fsynching a file to disk,
              * before replying to a client. */
+            /* 优先处理写事件
+             */ 
             int invert = fe->mask & AE_BARRIER;
 
             /* Note the "fe->mask & mask & ..." code: maybe an already
