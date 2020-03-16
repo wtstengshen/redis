@@ -726,28 +726,45 @@ typedef struct client {
     int fd;                 /* Client socket. */
     redisDb *db;            /* Pointer to currently SELECTed DB. */
     robj *name;             /* As set by CLIENT SETNAME. */
+    // read buffer and read position
+    // init = sdsempty
     sds querybuf;           /* Buffer we use to accumulate client queries. */
+    // init = 0
     size_t qb_pos;          /* The position we have read in querybuf. */
+    // init = sdsempty
     sds pending_querybuf;   /* If this client is flagged as master, this buffer
                                represents the yet not applied portion of the
                                replication stream that we are receiving from
                                the master. */
+    // init = 0                           
     size_t querybuf_peak;   /* Recent (100ms or more) peak of querybuf size. */
+    // 参数 arg 数量 init = 0
     int argc;               /* Num of arguments of current command. */
+    // 参数 arg value init =NULL 
     robj **argv;            /* Arguments of current command. */
+    // init NULL 
     struct redisCommand *cmd, *lastcmd;  /* Last command executed. */
+    // init = 0
     int reqtype;            /* Request protocol type: PROTO_REQ_* */
+    // init = 0
     int multibulklen;       /* Number of multi bulk arguments left to read. */
+    // init = -1
     long bulklen;           /* Length of bulk argument in multi bulk request. */
+    // 链表
     list *reply;            /* List of reply objects to send to the client. */
     unsigned long long reply_bytes; /* Tot bytes of objects in reply list. */
+
     size_t sentlen;         /* Amount of bytes already sent in the current
                                buffer or object being sent. */
+    // init = server.unixtime;
     time_t ctime;           /* Client creation time. */
     time_t lastinteraction; /* Time of the last interaction, used for timeout */
+
     time_t obuf_soft_limit_reached_time;
+    // init = 0
     int flags;              /* Client flags: CLIENT_* macros. */
     int authenticated;      /* When requirepass is non-NULL. */
+
     int replstate;          /* Replication state if this is a slave. */
     int repl_put_online_on_ack; /* Install slave write handler on first ACK. */
     int repldbfd;           /* Replication DB file descriptor. */
@@ -765,6 +782,7 @@ typedef struct client {
     int slave_listening_port; /* As configured with: SLAVECONF listening-port */
     char slave_ip[NET_IP_STR_LEN]; /* Optionally given by REPLCONF ip-address */
     int slave_capa;         /* Slave capabilities: SLAVE_CAPA_* bitwise OR. */
+    
     multiState mstate;      /* MULTI/EXEC state */
     int btype;              /* Type of blocking op if CLIENT_BLOCKED. */
     blockingState bpop;     /* blocking state */

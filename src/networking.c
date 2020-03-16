@@ -1515,6 +1515,9 @@ void processInputBufferAndReplicate(client *c) {
     }
 }
 
+/*
+ * socket read client event data
+ */
 void readQueryFromClient(aeEventLoop *el, int fd, void *privdata, int mask) {
     client *c = (client*) privdata;
     int nread, readlen;
@@ -1542,8 +1545,9 @@ void readQueryFromClient(aeEventLoop *el, int fd, void *privdata, int mask) {
     qblen = sdslen(c->querybuf);
     if (c->querybuf_peak < qblen) c->querybuf_peak = qblen;
     c->querybuf = sdsMakeRoomFor(c->querybuf, readlen);
+    // why only read once？nread is read full data?
     nread = read(fd, c->querybuf+qblen, readlen);
-    if (nread == -1) {
+    if (nread == -1) { // -1 client socket is error
         if (errno == EAGAIN) {
             return;
         } else {
@@ -1551,7 +1555,7 @@ void readQueryFromClient(aeEventLoop *el, int fd, void *privdata, int mask) {
             freeClient(c);
             return;
         }
-    } else if (nread == 0) {
+    } else if (nread == 0) { // why nread == 0 is close connection?
         serverLog(LL_VERBOSE, "Client closed connection");
         freeClient(c);
         return;
