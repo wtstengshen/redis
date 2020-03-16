@@ -50,7 +50,7 @@
                            things to disk before sending replies, and want
                            to do that in a group fashion. */
 /*
-* 这里的AE 是事件循环的事件，控制事件循环处理逻辑
+* 这里的AE 是事件循环的事件，控制事件循环处理逻辑，是aeProcessEvents方法的flag参数
 */
 #define AE_FILE_EVENTS 1
 #define AE_TIME_EVENTS 2
