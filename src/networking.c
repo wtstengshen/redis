@@ -1425,6 +1425,9 @@ void processInputBuffer(client *c) {
     server.current_client = c;
 
     /* Keep processing while there is something in the input buffer */
+    /*
+     * 如果pipline执行多个命令，进行循环处理 
+     */
     while(c->qb_pos < sdslen(c->querybuf)) {
         /* Return if clients are paused. */
         if (!(c->flags & CLIENT_SLAVE) && clientsArePaused()) break;
