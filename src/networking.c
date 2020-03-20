@@ -1055,6 +1055,9 @@ int writeToClient(int fd, client *c, int handler_installed) {
          * We just rely on data / pings received for timeout detection. */
         if (!(c->flags & CLIENT_MASTER)) c->lastinteraction = server.unixtime;
     }
+    /**
+     * 处理写入event事件，如果当前client里的buffer已经完成，deleteFileEvent
+     */
     if (!clientHasPendingReplies(c)) {
         c->sentlen = 0;
         if (handler_installed) aeDeleteFileEvent(server.el,c->fd,AE_WRITABLE);

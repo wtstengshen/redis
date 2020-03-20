@@ -102,7 +102,7 @@ typedef struct aeFiredEvent {
 typedef struct aeEventLoop {
     int maxfd;   /* highest file descriptor currently registered */
     int setsize; /* max number of file descriptors tracked */
-    long long timeEventNextId;
+    long long timeEventNextId; /* 每次注册timeEvent 自增nextId */
     time_t lastTime;     /* Used to detect system clock skew */
     aeFileEvent *events; /* Registered events */ /* events index is fd */
     aeFiredEvent *fired; /* Fired events */

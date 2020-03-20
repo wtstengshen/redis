@@ -317,22 +317,27 @@ static int processTimeEvents(aeEventLoop *eventLoop) {
          * add new timers on the head, however if we change the implementation
          * detail, this check may be useful again: we keep it here for future
          * defense. */
+        /* 看注释说没啥用途，每次aeCreateTimeEvent都是把创建再链表的头部 */
         if (te->id > maxId) {
             te = te->next;
             continue;
         }
         aeGetTime(&now_sec, &now_ms);
+        /* 判断哪些时间事件需要执行 */
         if (now_sec > te->when_sec ||
             (now_sec == te->when_sec && now_ms >= te->when_ms))
         {
             int retval;
 
             id = te->id;
+            /* 执行当前时间事件处理函数 */
             retval = te->timeProc(eventLoop, id, te->clientData);
             processed++;
             if (retval != AE_NOMORE) {
+                /* 如果当前event事件非-1，保留当前event事件，下次继续执行 */
                 aeAddMillisecondsToNow(retval,&te->when_sec,&te->when_ms);
             } else {
+                /* 如果当前事件不需要继续执行，设置id=-1，再下次事件循环中踢出链表 */
                 te->id = AE_DELETED_EVENT_ID;
             }
         }

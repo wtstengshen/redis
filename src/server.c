@@ -1132,6 +1132,9 @@ int serverCron(struct aeEventLoop *eventLoop, long long id, void *clientData) {
         }
     }
 
+    /**
+     * 增加统计上报
+     */ 
     run_with_period(100) {
         trackInstantaneousMetric(STATS_METRIC_COMMAND,server.stat_numcommands);
         trackInstantaneousMetric(STATS_METRIC_NET_INPUT,
@@ -1151,6 +1154,7 @@ int serverCron(struct aeEventLoop *eventLoop, long long id, void *clientData) {
      *
      * Note that you can change the resolution altering the
      * LRU_CLOCK_RESOLUTION define. */
+    /* 提升性能，不需要每次进行系统调用获取时间，维护一个内存中的时间，每个event进行递增处理 */
     unsigned long lruclock = getLRUClock();
     atomicSet(server.lruclock,lruclock);
 
@@ -1420,6 +1424,10 @@ void beforeSleep(struct aeEventLoop *eventLoop) {
     flushAppendOnlyFile(0);
 
     /* Handle writes with pending output buffers. */
+    /*
+     * 执行命令后写操作在这里写入网络,如果write client写入没有完全写入数据，注册write event事件
+     * 直接调用write而非注册write event目的减少注册事件系统调用
+     */ 
     handleClientsWithPendingWrites();
 
     /* Before we are going to sleep, let the threads access the dataset by
