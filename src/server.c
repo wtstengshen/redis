@@ -1425,8 +1425,9 @@ void beforeSleep(struct aeEventLoop *eventLoop) {
 
     /* Handle writes with pending output buffers. */
     /*
-     * 执行命令后写操作在这里写入网络,如果write client写入没有完全写入数据，注册write event事件
-     * 直接调用write而非注册write event目的减少注册事件系统调用
+     * 执行命令后写操作在这里写入网络
+     * 1,如果write client写入没有完全写入数据，注册write event事件
+     * 2,直接调用write而非注册write event目的减少注册事件系统调用
      */ 
     handleClientsWithPendingWrites();
 

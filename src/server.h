@@ -753,7 +753,7 @@ typedef struct client {
     // 链表
     list *reply;            /* List of reply objects to send to the client. */
     unsigned long long reply_bytes; /* Tot bytes of objects in reply list. */
-
+    // 发送的length
     size_t sentlen;         /* Amount of bytes already sent in the current
                                buffer or object being sent. */
     // init = server.unixtime;
