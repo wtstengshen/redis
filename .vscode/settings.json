@@ -8,6 +8,11 @@
         "locale": "c",
         "ostream": "cpp",
         "ios": "c",
-        "__config": "cpp"
+        "__config": "cpp",
+        "sds.h": "c",
+        "stdarg.h": "c",
+        "types.h": "c",
+        "stdint.h": "c",
+        "sdsalloc.h": "c"
     }
 }
