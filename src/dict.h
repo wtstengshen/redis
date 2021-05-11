@@ -97,6 +97,7 @@ typedef struct dict {
     void *privdata;
     // 渐进式rehash使用两个ht
     dictht ht[2];
+    // 标识当前rehash的桶的index
     long rehashidx; /* rehashing not in progress if rehashidx == -1 */
     unsigned long iterators; /* number of iterators currently running */
 } dict;
