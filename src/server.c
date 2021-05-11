@@ -4046,7 +4046,9 @@ int redisIsSupervised(int mode) {
     return 0;
 }
 
-
+/**
+ * main入口
+ * */
 int main(int argc, char **argv) {
     struct timeval tv;
     int j;
@@ -4241,6 +4243,7 @@ int main(int argc, char **argv) {
 
     aeSetBeforeSleepProc(server.el,beforeSleep);
     aeSetAfterSleepProc(server.el,afterSleep);
+    // ae 循环
     aeMain(server.el);
     aeDeleteEventLoop(server.el);
     return 0;

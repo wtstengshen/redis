@@ -44,21 +44,31 @@
 /* Unused arguments generate annoying warnings... */
 #define DICT_NOTUSED(V) ((void) V)
 
+/**
+ * 字典的entry
+ * */
 typedef struct dictEntry {
+    // key,key也是一个指针
     void *key;
+    // value的 union 结构体，根据key的类型
     union {
         void *val;
         uint64_t u64;
         int64_t s64;
         double d;
     } v;
+    // next指针,解决hash冲突，因为链表没有头尾指针，冲突插入数据放在表头
     struct dictEntry *next;
 } dictEntry;
 
 typedef struct dictType {
+    // 计算hash的函数
     uint64_t (*hashFunction)(const void *key);
+    // 复制key的函数
     void *(*keyDup)(void *privdata, const void *key);
+    // 复制value的函数
     void *(*valDup)(void *privdata, const void *obj);
+    // 比较key函数
     int (*keyCompare)(void *privdata, const void *key1, const void *key2);
     void (*keyDestructor)(void *privdata, void *key);
     void (*valDestructor)(void *privdata, void *obj);
@@ -67,15 +77,25 @@ typedef struct dictType {
 /* This is our hash table structure. Every dictionary has two of this as we
  * implement incremental rehashing, for the old to the new table. */
 typedef struct dictht {
+    // entry的数组
     dictEntry **table;
+    // 当前数组的大小
     unsigned long size;
+    // 数组取模的值 size -1
     unsigned long sizemask;
+    // 当前数据使用的大小
     unsigned long used;
 } dictht;
 
+/***
+ * redis的字典集合入口
+ * */
 typedef struct dict {
+    // 实现多态字典，定义的扩展type，扩展方法
     dictType *type;
+    // 特殊的上下文数据
     void *privdata;
+    // 渐进式rehash使用两个ht
     dictht ht[2];
     long rehashidx; /* rehashing not in progress if rehashidx == -1 */
     unsigned long iterators; /* number of iterators currently running */
