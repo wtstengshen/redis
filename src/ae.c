@@ -65,8 +65,10 @@ aeEventLoop *aeCreateEventLoop(int setsize) {
     int i;
 
     if ((eventLoop = zmalloc(sizeof(*eventLoop))) == NULL) goto err;
+    // 分配连续内存空间，根据系统打开的文件描述符，按照数据的index下标进行定位
     eventLoop->events = zmalloc(sizeof(aeFileEvent)*setsize);
     eventLoop->fired = zmalloc(sizeof(aeFiredEvent)*setsize);
+
     if (eventLoop->events == NULL || eventLoop->fired == NULL) goto err;
     eventLoop->setsize = setsize;
     eventLoop->lastTime = time(NULL);
@@ -410,11 +412,13 @@ int aeProcessEvents(aeEventLoop *eventLoop, int flags)
                 tvp = NULL; /* wait forever */
             }
         }
-
+        // tvp 时间函数，调用操作系统epoll的暂停时间
+        // 这里处理epoll的返回值，返回文件描述符
         /* Call the multiplexing API, will return only on timeout or when
          * some event fires. */
         numevents = aeApiPoll(eventLoop, tvp);
 
+        // aftersleep是epoll timeout之后的扩展方法
         /* After sleep callback. */
         if (eventLoop->aftersleep != NULL && flags & AE_CALL_AFTER_SLEEP)
             eventLoop->aftersleep(eventLoop);
@@ -436,7 +440,10 @@ int aeProcessEvents(aeEventLoop *eventLoop, int flags)
              * This is useful when, for instance, we want to do things
              * in the beforeSleep() hook, like fsynching a file to disk,
              * before replying to a client. */
-            /* 优先处理写事件
+            /* 
+            优先处理AE_BARRIER,原因，正常的网络写数据，直接网socket的buffer里写入即可，只要buffer不满就可以写入
+            如果无法写入，才会注册写事件，等到socket的buffer可写
+            根据invert的判断，优先进行读操作还是写操作
              */ 
             int invert = fe->mask & AE_BARRIER;
 
@@ -504,6 +511,7 @@ void aeMain(aeEventLoop *eventLoop) {
     eventLoop->stop = 0;
     while (!eventLoop->stop) {
         if (eventLoop->beforesleep != NULL)
+            // 这里的 beforesleep 进入aeProcessEvents前的钩子方法
             eventLoop->beforesleep(eventLoop);
         aeProcessEvents(eventLoop, AE_ALL_EVENTS|AE_CALL_AFTER_SLEEP);
     }

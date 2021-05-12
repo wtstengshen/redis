@@ -44,7 +44,7 @@
 #define AE_NONE 0       /* No events registered. */
 #define AE_READABLE 1   /* Fire when descriptor is readable. */
 #define AE_WRITABLE 2   /* Fire when descriptor is writable. */
-// 优先处理写事件，再event loop中，次标致位存在，并且AE_WRITABLE，存在优先处理写，再处理读
+// 优先处理写事件，再event loop中，标志位存在，并且AE_WRITABLE，存在优先处理写，再处理读
 #define AE_BARRIER 4    /* With WRITABLE, never fire the event if the
                            READABLE event already fired in the same event
                            loop iteration. Useful when you want to persist
@@ -105,12 +105,17 @@ typedef struct aeEventLoop {
     int setsize; /* max number of file descriptors tracked */
     long long timeEventNextId; /* 每次注册timeEvent 自增nextId */
     time_t lastTime;     /* Used to detect system clock skew */
+    // file event是处理网络读写数据，数组，根据fd作为数组的下标
     aeFileEvent *events; /* Registered events */ /* events index is fd */
     aeFiredEvent *fired; /* Fired events */
+    // 时间处理event，这是一个链表
     aeTimeEvent *timeEventHead;
     int stop;
+    // 根据操作系统不同的实现aeApiState的stuct的定义不同
     void *apidata; /* This is used for polling API specific data */
+    // 进入aeProcess处理方法前的钩子函数
     aeBeforeSleepProc *beforesleep;
+    // 进入aeProcess处理方法后的钩子函数
     aeBeforeSleepProc *aftersleep;
 } aeEventLoop;
 
