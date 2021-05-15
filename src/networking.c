@@ -95,7 +95,7 @@ client *createClient(int fd) {
         anetEnableTcpNoDelay(NULL,fd);
         if (server.tcpkeepalive)
             anetKeepAlive(NULL,fd,server.tcpkeepalive);
-        // 创建一个新的client之后，常见fileEvent，监听读事件，执行readQueryFromClient的方法
+        // 创建一个新的client之后，常见fileEvent，监听读事件，as循环获取到事件之后执行 readQueryFromClient 方法
         if (aeCreateFileEvent(server.el,fd,AE_READABLE,
             readQueryFromClient, c) == AE_ERR)
         {
@@ -1430,9 +1430,7 @@ void processInputBuffer(client *c) {
     server.current_client = c;
 
     /* Keep processing while there is something in the input buffer */
-    /*
-     * 如果pipline执行多个命令，进行循环处理 
-     */
+
     while(c->qb_pos < sdslen(c->querybuf)) {
         /* Return if clients are paused. */
         if (!(c->flags & CLIENT_SLAVE) && clientsArePaused()) break;

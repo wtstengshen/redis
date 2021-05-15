@@ -13,6 +13,10 @@
         "stdarg.h": "c",
         "types.h": "c",
         "stdint.h": "c",
-        "sdsalloc.h": "c"
+        "sdsalloc.h": "c",
+        "__hash_table": "c",
+        "algorithm": "c",
+        "array": "c",
+        "vector": "c"
     }
 }

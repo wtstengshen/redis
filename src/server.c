@@ -1232,6 +1232,9 @@ int serverCron(struct aeEventLoop *eventLoop, long long id, void *clientData) {
 
     /* Start a scheduled AOF rewrite if this was requested by the user while
      * a BGSAVE was in progress. */
+    /**
+     * 执行aof的重写逻辑
+     */
     if (server.rdb_child_pid == -1 && server.aof_child_pid == -1 &&
         server.aof_rewrite_scheduled)
     {
@@ -1239,6 +1242,7 @@ int serverCron(struct aeEventLoop *eventLoop, long long id, void *clientData) {
     }
 
     /* Check if a background saving or AOF rewrite in progress terminated. */
+    // 子进程重写完成后，父进程进行处理
     if (server.rdb_child_pid != -1 || server.aof_child_pid != -1 ||
         ldbPendingChildren())
     {
@@ -1421,6 +1425,9 @@ void beforeSleep(struct aeEventLoop *eventLoop) {
         processUnblockedClients();
 
     /* Write the AOF buffer on disk */
+    /**
+     * 这里处理执行命令append到redisServer的aof_buf里的aof命令，写入磁盘
+     * */
     flushAppendOnlyFile(0);
 
     /* Handle writes with pending output buffers. */
@@ -2352,9 +2359,10 @@ struct redisCommand *lookupCommandOrOriginal(sds name) {
  */
 void propagate(struct redisCommand *cmd, int dbid, robj **argv, int argc,
                int flags)
-{
+{   // 这里执行aof的逻辑
     if (server.aof_state != AOF_OFF && flags & PROPAGATE_AOF)
         feedAppendOnlyFile(cmd,dbid,argv,argc);
+    // 执行salve的复制
     if (flags & PROPAGATE_REPL)
         replicationFeedSlaves(server.slaves,dbid,argv,argc);
 }
@@ -2476,7 +2484,9 @@ void call(client *c, int flags) {
     dirty = server.dirty;
     updateCachedTime(0);
     start = server.ustime;
+    // 这里执行command
     c->cmd->proc(c);
+    // 记录执行命令耗时
     duration = ustime()-start;
     dirty = server.dirty-dirty;
     if (dirty < 0) dirty = 0;
@@ -2771,6 +2781,7 @@ int processCommand(client *c) {
         queueMultiCommand(c);
         addReply(c,shared.queued);
     } else {
+        // 这里真实的命令执行
         call(c,CMD_CALL_FULL);
         c->woff = server.master_repl_offset;
         if (listLength(server.ready_keys))
