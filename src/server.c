@@ -1115,6 +1115,7 @@ int serverCron(struct aeEventLoop *eventLoop, long long id, void *clientData) {
     if (server.watchdog_period) watchdogScheduleSignal(server.watchdog_period);
 
     /* Update the time cache. */
+    // 不是很准确的时间更新，为了防止每次获取系统时间影响性能
     updateCachedTime(1);
 
     server.hz = server.config_hz;
